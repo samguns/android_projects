@@ -1,6 +1,5 @@
 package com.example.gangwang.clientdemo;
 
-import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -11,9 +10,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -88,7 +85,7 @@ public class MainActivity extends ActionBarActivity {
     {
         String dstAddress;
         int dstPort;
-        String response = "";
+        String response = "test";
 
         MyClientTask(String addr, int port)
         {
@@ -99,6 +96,7 @@ public class MainActivity extends ActionBarActivity {
         @Override
         protected Void doInBackground(Void... arg0)
         {
+
             Socket socket = null;
 
             try
@@ -107,13 +105,11 @@ public class MainActivity extends ActionBarActivity {
                 socket = new Socket(dstAddress, dstPort);
 
                 OutputStream outputStream = socket.getOutputStream();
-                //InputStream inputStream = new InputStream(socket.getInputStream());
 
-                byte[] buffer = new byte[1024];
-
-                buffer[0] = 'A';
-                buffer[1] = 'C';
-                outputStream.write(buffer, 0, 2);
+                byte data [] = response.getBytes();
+                int temp = 4;
+                outputStream.write(data, 0, temp);
+                outputStream.flush();
             }
             catch (UnknownHostException e)
             {
