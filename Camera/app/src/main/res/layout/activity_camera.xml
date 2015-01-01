@@ -9,11 +9,23 @@
         android:layout_height="0dp"
         android:layout_weight="1" />
 
+    <EditText
+        android:id="@+id/address"
+        android:hint="@string/dstAddress"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
     <Button
         android:id="@+id/button_capture"
         android:text="@string/capture"
         android:layout_gravity="center"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/response"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/app_name"/>
 
 </LinearLayout>

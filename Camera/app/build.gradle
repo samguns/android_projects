@@ -6,7 +6,7 @@ android {
 
     defaultConfig {
         applicationId "com.gangwang.camera"
-        minSdkVersion 9
+        minSdkVersion 14
         targetSdkVersion 21
         versionCode 2
         versionName "2.0"

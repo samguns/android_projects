@@ -20,12 +20,13 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 
 import java.io.IOException;
+import java.util.List;
 
 
 public class CameraActivity extends Activity {
 
     private static final String TAG = "CameraActivity";
-    private Camera mCamera;
+    private Camera mCamera = null;
     private CameraPreview mPreview;
 
     @Override
@@ -46,15 +47,14 @@ public class CameraActivity extends Activity {
 
         Button captureButton = (Button) findViewById(R.id.button_capture);
         captureButton.setOnClickListener(
-                new View.OnClickListener() {
+                new Button.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        mCamera.takePicture(mShutter, mPicture_RAW, mPicture_JPG);
+                        mCamera.takePicture(null, null, mPicture_JPG);
                     }
                 }
         );
     }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -123,7 +123,9 @@ public class CameraActivity extends Activity {
         }
 
         public void surfaceDestroyed(SurfaceHolder holder) {
-            // empty
+            if (mCamera != null) {
+                mCamera.stopPreview();
+            }
         }
 
         public void surfaceChanged(SurfaceHolder holder, int format, int w, int h) {
@@ -142,25 +144,27 @@ public class CameraActivity extends Activity {
             Display display = ((WindowManager)getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
             switch (display.getRotation()) {
                 case Surface.ROTATION_0:
-                    //parameters.setPreviewSize(h, w);
                     mCamera.setDisplayOrientation(90);
                     break;
 
                 case Surface.ROTATION_90:
                     mCamera.setDisplayOrientation(0);
-                    //parameters.setPreviewSize(w, h);
                     break;
 
                 case Surface.ROTATION_180:
                     mCamera.setDisplayOrientation(270);
-                    //parameters.setPreviewSize(h, w);
                     break;
 
                 case Surface.ROTATION_270:
-                    //parameters.setPreviewSize(w, h);
                     mCamera.setDisplayOrientation(180);
                     break;
             }
+
+            int Width = this.getWidth();
+            int Height = this.getHeight();
+            List<Camera.Size> sizes = parameters.getSupportedPreviewSizes();
+            Camera.Size optimalSize = getOptimalPreviewSize(sizes, Width, Height);
+            parameters.setPreviewSize(optimalSize.width, optimalSize.height);
 
             try {
                 mCamera.setParameters(parameters);
@@ -173,64 +177,88 @@ public class CameraActivity extends Activity {
         }
     }
 
+    private Camera.Size getOptimalPreviewSize(List <Camera.Size>sizes, int w, int h) {
+        final double aspect_tolerance = 0.1;
+        final double max_downsize = 1.5;
+
+        double targetRatio = (double) (w/h);
+        if (sizes == null)
+            return null;
+
+        Camera.Size optimalSize = null;
+        double minDiff = Double.MAX_VALUE;
+
+        int targetHeight = h;
+
+        for (Camera.Size size : sizes) {
+            double ratio = (double)size.width / size.height;
+            double downsize = (double)size.width / w;
+            if (downsize > max_downsize) {
+                continue;
+            }
+
+            if (Math.abs(ratio - targetRatio) > aspect_tolerance)
+                continue;
+
+            if (Math.abs(size.height - targetHeight) < minDiff) {
+                optimalSize = size;
+                minDiff = Math.abs(size.height - targetHeight);
+            }
+        }
+
+        if (optimalSize == null) {
+            minDiff = Double.MAX_VALUE;
+            for (Camera.Size size : sizes) {
+                double downsize = (double)size.width / w;
+
+                if (downsize > max_downsize) {
+                    continue;
+                }
+
+                if (Math.abs(size.height - targetHeight) < minDiff) {
+                    optimalSize = size;
+                    minDiff = Math.abs(size.height - targetHeight);
+                }
+            }
+        }
+
+        if (optimalSize == null) {
+            minDiff = Double.MAX_VALUE;
+            for (Camera.Size size : sizes) {
+                if (Math.abs(size.height - targetHeight) < minDiff) {
+                    optimalSize = size;
+                    minDiff = Math.abs(size.height - targetHeight);
+                }
+            }
+        }
+
+        return optimalSize;
+    }
+
     @Override
     public void onPause() {
-        mCamera.release();
         super.onPause();
+        if (null != mCamera) {
+            mCamera.stopPreview();
+            mCamera.release();
+            mCamera = null;
+        }
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mCamera = getCameraInstance();
+        if (null == mCamera) {
+            mCamera = getCameraInstance();
+        }
     }
-
-    private Camera.ShutterCallback mShutter = new Camera.ShutterCallback() {
-        @Override
-        public void onShutter() {
-            //
-        }
-    };
-
-    private Camera.PictureCallback mPicture_RAW = new Camera.PictureCallback() {
-        @Override
-        public void onPictureTaken(byte[] data, Camera camera) {
-            //
-        }
-    };
 
     private Camera.PictureCallback mPicture_JPG = new Camera.PictureCallback() {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
             Bitmap bm = BitmapFactory.decodeByteArray(data, 0, data.length, null);
-
-            /*
-            File dir_image2 = new File (Environment.getExternalStorageDirectory() +
-                    File.separator + "Ultimate Entity Detector");
-            dir_image2.mkdir();
-
-            File tmpFile = new File(dir_image2, "TempGhost.jpg");
-
-            try {
-                FileOutputStream fos = new FileOutputStream(tmpFile);
-                fos.write(data);
-                fos.close();
-            }
-            catch (FileNotFoundException e) {
-                Log.d(TAG, "Error : " + e.getMessage());
-            }
-            catch (IOException e) {
-                Log.d(TAG, "Error : " + e.getMessage());
-            }
-
-            String path = (Environment.getExternalStorageState() +
-                        File.separator + "Ultimate EntityDetector" +
-                        File.separator + "TempGhost.jpg");
-
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-            bmp1 = BitmapFactory.decodeFile(path, options);
-            */
+            camera.startPreview();
         }
     };
+
 }
