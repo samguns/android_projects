@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
@@ -256,8 +257,15 @@ public class CameraActivity extends Activity {
     private Camera.PictureCallback mPicture_JPG = new Camera.PictureCallback() {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
-            Bitmap bm = BitmapFactory.decodeByteArray(data, 0, data.length, null);
-            camera.startPreview();
+            BitmapFactory.Options op = new BitmapFactory.Options();
+            op.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            Bitmap bm = BitmapFactory.decodeByteArray(data, 0, data.length, op);
+            Log.i(TAG, "Captured Bitmap size: " + bm.getWidth() + bm.getHeight());
+            int rgbPixel = bm.getPixel(100, 100);
+            Log.i(TAG, "pixel: " + Integer.toHexString(rgbPixel));
+            Log.i(TAG, "rgb: r---" + Color.red(rgbPixel) + "  g-- " + Color.green(rgbPixel) +" b--"+Color.blue(rgbPixel));
+
+            //camera.startPreview();
         }
     };
 
