@@ -7,36 +7,199 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.hardware.Camera;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.TextView;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-
 
 public class CameraActivity extends Activity {
 
     private static final String TAG = "CameraActivity";
     private Camera mCamera = null;
     private CameraPreview mPreview;
+    private List<Points> mSamplePoints_1 = null;
+    private List<Points> mSamplePoints_2 = null;
+    private List<Points> mSamplePoints_3 = null;
+    private List<Points> mSamplePoints_4 = null;
+    private List<Points> mSamplePoints_5 = null;
+    private List<Points> mSamplePoints_6 = null;
+    private List<Points> mSamplePoints_7 = null;
+    private List<Points> mSamplePoints_8 = null;
+    private List<Points> mSamplePoints_9 = null;
+    private TextView mTextView = null;
+    private EditText mAddress;
+    private Socket mSocket = null;
+    //private Bitmap mCapturedBitmap;
+
+    private void initSamplePoints() {
+        int i, j;
+        int init_x, init_y;
+
+        mSamplePoints_1 = new ArrayList<Points>();
+        mSamplePoints_2 = new ArrayList<Points>();
+        mSamplePoints_3 = new ArrayList<Points>();
+        mSamplePoints_4 = new ArrayList<Points>();
+        mSamplePoints_5 = new ArrayList<Points>();
+        mSamplePoints_6 = new ArrayList<Points>();
+        mSamplePoints_7 = new ArrayList<Points>();
+        mSamplePoints_8 = new ArrayList<Points>();
+        mSamplePoints_9 = new ArrayList<Points>();
+
+        init_x = 98;
+        init_y = 25;
+
+        for (i = 0; i < 4; i++) {
+            for (j = 0; j < 4; j++) {
+                Points point = new Points();
+                point.pos_x = init_x + i;
+                point.pos_y = init_y + j;
+
+                mSamplePoints_1.add(point);
+            }
+        }
+
+        init_x = 98;
+        init_y = 65;
+
+        for (i = 0; i < 4; i++) {
+            for (j = 0; j < 4; j++) {
+                Points point = new Points();
+                point.pos_x = init_x + i;
+                point.pos_y = init_y + j;
+
+                mSamplePoints_2.add(point);
+            }
+        }
+
+        init_x = 98;
+        init_y = 105;
+
+        for (i = 0; i < 4; i++) {
+            for (j = 0; j < 4; j++) {
+                Points point = new Points();
+                point.pos_x = init_x + i;
+                point.pos_y = init_y + j;
+
+                mSamplePoints_3.add(point);
+            }
+        }
+
+        init_x = 58;
+        init_y = 25;
+
+        for (i = 0; i < 4; i++) {
+            for (j = 0; j < 4; j++) {
+                Points point = new Points();
+                point.pos_x = init_x + i;
+                point.pos_y = init_y + j;
+
+                mSamplePoints_4.add(point);
+            }
+        }
+
+        init_x = 58;
+        init_y = 65;
+
+        for (i = 0; i < 4; i++) {
+            for (j = 0; j < 4; j++) {
+                Points point = new Points();
+                point.pos_x = init_x + i;
+                point.pos_y = init_y + j;
+
+                mSamplePoints_5.add(point);
+            }
+        }
+
+        init_x = 58;
+        init_y = 105;
+
+        for (i = 0; i < 4; i++) {
+            for (j = 0; j < 4; j++) {
+                Points point = new Points();
+                point.pos_x = init_x + i;
+                point.pos_y = init_y + j;
+
+                mSamplePoints_6.add(point);
+            }
+        }
+
+        init_x = 18;
+        init_y = 25;
+
+        for (i = 0; i < 4; i++) {
+            for (j = 0; j < 4; j++) {
+                Points point = new Points();
+                point.pos_x = init_x + i;
+                point.pos_y = init_y + j;
+
+                mSamplePoints_7.add(point);
+            }
+        }
+
+        init_x = 18;
+        init_y = 65;
+
+        for (i = 0; i < 4; i++) {
+            for (j = 0; j < 4; j++) {
+                Points point = new Points();
+                point.pos_x = init_x + i;
+                point.pos_y = init_y + j;
+
+                mSamplePoints_8.add(point);
+            }
+        }
+
+        init_x = 18;
+        init_y = 105;
+
+        for (i = 0; i < 4; i++) {
+            for (j = 0; j < 4; j++) {
+                Points point = new Points();
+                point.pos_x = init_x + i;
+                point.pos_y = init_y + j;
+
+                mSamplePoints_9.add(point);
+            }
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera);
 
+        initSamplePoints();
+
+        mTextView = (TextView) findViewById(R.id.response);
+
         mCamera = getCameraInstance();
-        mCamera.setDisplayOrientation(90);
+        //mCamera.setDisplayOrientation(90);
 
         Camera.Parameters parameters = mCamera.getParameters();
         parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
@@ -45,6 +208,19 @@ public class CameraActivity extends Activity {
         mPreview = new CameraPreview(this, mCamera);
         FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
         preview.addView(mPreview);
+        preview.setOnTouchListener(
+                new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent motionEvent) {
+                        Log.i(TAG, "Position = x: " + motionEvent.getX() + " y: " + motionEvent.getY());
+                        //Log.i(TAG, "Preview size: " + mPreview.getWidth() + " " + mPreview.getHeight());
+                        //int rgbPixel = mCapturedBitmap.getPixel(Math.round(motionEvent.getX()),
+                        //                                        Math.round(motionEvent.getX()));
+                        //mTextView.setBackgroundColor(rgbPixel);
+                        return true;
+                    }
+                }
+        );
 
         Button captureButton = (Button) findViewById(R.id.button_capture);
         captureButton.setOnClickListener(
@@ -52,6 +228,20 @@ public class CameraActivity extends Activity {
                     @Override
                     public void onClick(View v) {
                         mCamera.takePicture(null, null, mPicture_JPG);
+                    }
+                }
+        );
+
+        mAddress = (EditText)findViewById(R.id.address);
+        Button btnConnect = (Button) findViewById(R.id.connect);
+        btnConnect.setOnClickListener(
+                new Button.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        InitSocketTask connectTask = new InitSocketTask(
+                                        mAddress.getText().toString(), 50007);
+
+                        connectTask.execute();
                     }
                 }
         );
@@ -143,29 +333,45 @@ public class CameraActivity extends Activity {
 
             Camera.Parameters parameters = mCamera.getParameters();
             Display display = ((WindowManager)getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
+            Camera.CameraInfo info = new Camera.CameraInfo();
+            int degree = 0;
             switch (display.getRotation()) {
                 case Surface.ROTATION_0:
-                    mCamera.setDisplayOrientation(90);
+                    degree = 270;
+                    //mCamera.setDisplayOrientation(90);
                     break;
 
                 case Surface.ROTATION_90:
-                    mCamera.setDisplayOrientation(0);
+                    degree = 180;
+                    //mCamera.setDisplayOrientation(0);
                     break;
 
                 case Surface.ROTATION_180:
-                    mCamera.setDisplayOrientation(270);
+                    degree = 0;
+                    //mCamera.setDisplayOrientation(270);
                     break;
 
                 case Surface.ROTATION_270:
-                    mCamera.setDisplayOrientation(180);
+                    degree = 90;
+                    //mCamera.setDisplayOrientation(180);
                     break;
             }
+            int result;
+            if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+                result = (info.orientation + degree) % 360;
+                result = (360 - result) % 360;  // compensate the mirror
+            } else {  // back-facing
+                result = (info.orientation - degree + 360) % 360;
+            }
+            mCamera.setDisplayOrientation(result);
 
             int Width = this.getWidth();
             int Height = this.getHeight();
             List<Camera.Size> sizes = parameters.getSupportedPreviewSizes();
-            Camera.Size optimalSize = getOptimalPreviewSize(sizes, Width, Height);
-            parameters.setPreviewSize(optimalSize.width, optimalSize.height);
+            //List<Camera.Size> pic_sizes = parameters.getSupportedPictureSizes();
+            //Camera.Size optimalSize = getOptimalPreviewSize(sizes, Width, Height);
+            parameters.setPreviewSize(960, 720);
+            //parameters.setPictureSize(800, 600);
 
             try {
                 mCamera.setParameters(parameters);
@@ -182,18 +388,21 @@ public class CameraActivity extends Activity {
         final double aspect_tolerance = 0.1;
         final double max_downsize = 1.5;
 
-        double targetRatio = (double) (w/h);
+        Log.i(TAG, "getOptimalPreviewSize w:" + w + " h:" + h);
+
+        double targetRatio = (double) (h/w);
         if (sizes == null)
             return null;
 
         Camera.Size optimalSize = null;
         double minDiff = Double.MAX_VALUE;
 
-        int targetHeight = h;
+        int targetHeight = w;
 
         for (Camera.Size size : sizes) {
+            Log.i(TAG, "getOptimalPreviewSize size.width:" + size.width + " size.height:" + size.height);
             double ratio = (double)size.width / size.height;
-            double downsize = (double)size.width / w;
+            double downsize = (double)size.width / h;
             if (downsize > max_downsize) {
                 continue;
             }
@@ -210,7 +419,7 @@ public class CameraActivity extends Activity {
         if (optimalSize == null) {
             minDiff = Double.MAX_VALUE;
             for (Camera.Size size : sizes) {
-                double downsize = (double)size.width / w;
+                double downsize = (double)size.width / h;
 
                 if (downsize > max_downsize) {
                     continue;
@@ -244,6 +453,15 @@ public class CameraActivity extends Activity {
             mCamera.release();
             mCamera = null;
         }
+
+        if (null != mSocket) {
+            try {
+                mSocket.close();
+            } catch (IOException e) {
+                //
+            }
+            mSocket = null;
+        }
     }
 
     @Override
@@ -257,16 +475,375 @@ public class CameraActivity extends Activity {
     private Camera.PictureCallback mPicture_JPG = new Camera.PictureCallback() {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
+            /*
+            File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
+            if (pictureFile == null){
+                Log.d(TAG, "Error creating media file, check storage permissions");
+                return;
+            }
+
+            try {
+                FileOutputStream fos = new FileOutputStream(pictureFile);
+                fos.write(data);
+                fos.close();
+            } catch (FileNotFoundException e) {
+                Log.d(TAG, "File not found: " + e.getMessage());
+            } catch (IOException e) {
+                Log.d(TAG, "Error accessing file: " + e.getMessage());
+            }
+            */
+
             BitmapFactory.Options op = new BitmapFactory.Options();
             op.inPreferredConfig = Bitmap.Config.ARGB_8888;
             Bitmap bm = BitmapFactory.decodeByteArray(data, 0, data.length, op);
-            Log.i(TAG, "Captured Bitmap size: " + bm.getWidth() + bm.getHeight());
-            int rgbPixel = bm.getPixel(100, 100);
+            getCubeColor(bm);
+            /*
+            Log.i(TAG, "Captured Bitmap size: " + bm.getWidth() + " x " + bm.getHeight());
+            Log.i(TAG, "color of 20x40");
+            int rgbPixel = bm.getPixel(20, 40);
             Log.i(TAG, "pixel: " + Integer.toHexString(rgbPixel));
             Log.i(TAG, "rgb: r---" + Color.red(rgbPixel) + "  g-- " + Color.green(rgbPixel) +" b--"+Color.blue(rgbPixel));
 
-            //camera.startPreview();
+            Log.i(TAG, "color of 75x40");
+            rgbPixel = bm.getPixel(75, 40);
+            Log.i(TAG, "pixel: " + Integer.toHexString(rgbPixel));
+            Log.i(TAG, "rgb: r---" + Color.red(rgbPixel) + "  g-- " + Color.green(rgbPixel) +" b--"+Color.blue(rgbPixel));
+
+            Log.i(TAG, "color of 125x40");
+            rgbPixel = bm.getPixel(125, 40);
+            Log.i(TAG, "pixel: " + Integer.toHexString(rgbPixel));
+            Log.i(TAG, "rgb: r---" + Color.red(rgbPixel) + "  g-- " + Color.green(rgbPixel) +" b--"+Color.blue(rgbPixel));
+
+            int scaleFactor = 1;
+            int photoW = op.outWidth;
+            int photoH = op.outHeight;
+            int targetW = mPreview.getWidth();
+            int targetH = mPreview.getHeight();
+            scaleFactor = Math.min(photoW/targetW, photoH/targetH);
+
+            op.inJustDecodeBounds = false;
+            op.inSampleSize = scaleFactor;
+            op.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            mCapturedBitmap = bm.createScaledBitmap(bm, targetW, targetH, true);
+            //Bitmap scaled_bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, op);
+
+            Log.i(TAG, "Scaled Bitmap size: " + mCapturedBitmap.getWidth() + " x " + mCapturedBitmap.getHeight());
+            */
+            camera.startPreview();
         }
     };
 
+    private void getCubeColor(Bitmap bitmap) {
+        int rgbPixel;
+        int r = 0;
+        int g = 0;
+        int b = 0;
+        String output;
+        byte data[];
+        OutputStream outputStream = null;
+
+        try {
+            outputStream = mSocket.getOutputStream();
+        } catch (IOException e) {
+            Log.i(TAG, "Couldn't send out data: " + e.getMessage());
+        }
+
+        Log.i(TAG, "Sample1");
+        for (Points point : mSamplePoints_1) {
+            rgbPixel = bitmap.getPixel(point.pos_x, point.pos_y);
+            r += Color.red(rgbPixel);
+            g += Color.green(rgbPixel);
+            b += Color.blue(rgbPixel);
+            Log.i(TAG, "Color of " + Integer.toString(point.pos_x) +
+                    "x" + Integer.toString(point.pos_y) +
+                    " pixel: " + Integer.toHexString(rgbPixel) +
+                    " r:" + Color.red(rgbPixel) + " g:" + Color.green(rgbPixel) + " b:" + Color.blue(rgbPixel));
+        }
+
+        Log.i(TAG, "Red: " + r + " Green: " + g + " Blue: " + b);
+
+        r = r / 16;
+        g = g / 16;
+        b = b / 16;
+
+        Log.i(TAG, "Red/16: " + r + " Green/16: " + g + " Blue/16: " + b);
+        output = "R" + r + "G" + g + "B" + b;
+
+        r = g = b = 0;
+        Log.i(TAG, "Sample2");
+        for (Points point : mSamplePoints_2) {
+            rgbPixel = bitmap.getPixel(point.pos_x, point.pos_y);
+            r += Color.red(rgbPixel);
+            g += Color.green(rgbPixel);
+            b += Color.blue(rgbPixel);
+            Log.i(TAG, "Color of " + Integer.toString(point.pos_x) +
+                    "x" + Integer.toString(point.pos_y) +
+                    " pixel: " + Integer.toHexString(rgbPixel) +
+                    " r:" + Color.red(rgbPixel) + " g:" + Color.green(rgbPixel) + " b:" + Color.blue(rgbPixel));
+        }
+
+        Log.i(TAG, "Red: " + r + " Green: " + g + " Blue: " + b);
+
+        r = r / 16;
+        g = g / 16;
+        b = b / 16;
+
+        Log.i(TAG, "Red/16: " + r + " Green/16: " + g + " Blue/16: " + b);
+        output += "R" + r + "G" + g + "B" + b;
+
+        r = g = b = 0;
+        Log.i(TAG, "Sample3");
+        for (Points point : mSamplePoints_3) {
+            rgbPixel = bitmap.getPixel(point.pos_x, point.pos_y);
+            r += Color.red(rgbPixel);
+            g += Color.green(rgbPixel);
+            b += Color.blue(rgbPixel);
+            Log.i(TAG, "Color of " + Integer.toString(point.pos_x) +
+                    "x" + Integer.toString(point.pos_y) +
+                    " pixel: " + Integer.toHexString(rgbPixel) +
+                    " r:" + Color.red(rgbPixel) + " g:" + Color.green(rgbPixel) + " b:" + Color.blue(rgbPixel));
+        }
+
+        Log.i(TAG, "Red: " + r + " Green: " + g + " Blue: " + b);
+
+        r = r / 16;
+        g = g / 16;
+        b = b / 16;
+
+        Log.i(TAG, "Red/16: " + r + " Green/16: " + g + " Blue/16: " + b);
+        output += "R" + r + "G" + g + "B" + b;
+
+        r = g = b = 0;
+        Log.i(TAG, "Sample4");
+        for (Points point : mSamplePoints_4) {
+            rgbPixel = bitmap.getPixel(point.pos_x, point.pos_y);
+            r += Color.red(rgbPixel);
+            g += Color.green(rgbPixel);
+            b += Color.blue(rgbPixel);
+            Log.i(TAG, "Color of " + Integer.toString(point.pos_x) +
+                    "x" + Integer.toString(point.pos_y) +
+                    " pixel: " + Integer.toHexString(rgbPixel) +
+                    " r:" + Color.red(rgbPixel) + " g:" + Color.green(rgbPixel) + " b:" + Color.blue(rgbPixel));
+        }
+
+        Log.i(TAG, "Red: " + r + " Green: " + g + " Blue: " + b);
+
+        r = r / 16;
+        g = g / 16;
+        b = b / 16;
+
+        Log.i(TAG, "Red/16: " + r + " Green/16: " + g + " Blue/16: " + b);
+        output += "R" + r + "G" + g + "B" + b;
+
+        r = g = b = 0;
+        Log.i(TAG, "Sample5");
+        for (Points point : mSamplePoints_5) {
+            rgbPixel = bitmap.getPixel(point.pos_x, point.pos_y);
+            r += Color.red(rgbPixel);
+            g += Color.green(rgbPixel);
+            b += Color.blue(rgbPixel);
+            Log.i(TAG, "Color of " + Integer.toString(point.pos_x) +
+                    "x" + Integer.toString(point.pos_y) +
+                    " pixel: " + Integer.toHexString(rgbPixel) +
+                    " r:" + Color.red(rgbPixel) + " g:" + Color.green(rgbPixel) + " b:" + Color.blue(rgbPixel));
+        }
+
+        Log.i(TAG, "Red: " + r + " Green: " + g + " Blue: " + b);
+
+        r = r / 16;
+        g = g / 16;
+        b = b / 16;
+
+        Log.i(TAG, "Red/16: " + r + " Green/16: " + g + " Blue/16: " + b);
+        output += "R" + r + "G" + g + "B" + b;
+
+        r = g = b = 0;
+        Log.i(TAG, "Sample6");
+        for (Points point : mSamplePoints_6) {
+            rgbPixel = bitmap.getPixel(point.pos_x, point.pos_y);
+            r += Color.red(rgbPixel);
+            g += Color.green(rgbPixel);
+            b += Color.blue(rgbPixel);
+            Log.i(TAG, "Color of " + Integer.toString(point.pos_x) +
+                    "x" + Integer.toString(point.pos_y) +
+                    " pixel: " + Integer.toHexString(rgbPixel) +
+                    " r:" + Color.red(rgbPixel) + " g:" + Color.green(rgbPixel) + " b:" + Color.blue(rgbPixel));
+        }
+
+        Log.i(TAG, "Red: " + r + " Green: " + g + " Blue: " + b);
+
+        r = r / 16;
+        g = g / 16;
+        b = b / 16;
+
+        Log.i(TAG, "Red/16: " + r + " Green/16: " + g + " Blue/16: " + b);
+        output += "R" + r + "G" + g + "B" + b;
+
+        r = g = b = 0;
+        Log.i(TAG, "Sample7");
+        for (Points point : mSamplePoints_7) {
+            rgbPixel = bitmap.getPixel(point.pos_x, point.pos_y);
+            r += Color.red(rgbPixel);
+            g += Color.green(rgbPixel);
+            b += Color.blue(rgbPixel);
+            Log.i(TAG, "Color of " + Integer.toString(point.pos_x) +
+                    "x" + Integer.toString(point.pos_y) +
+                    " pixel: " + Integer.toHexString(rgbPixel) +
+                    " r:" + Color.red(rgbPixel) + " g:" + Color.green(rgbPixel) + " b:" + Color.blue(rgbPixel));
+        }
+
+        Log.i(TAG, "Red: " + r + " Green: " + g + " Blue: " + b);
+
+        r = r / 16;
+        g = g / 16;
+        b = b / 16;
+
+        Log.i(TAG, "Red/16: " + r + " Green/16: " + g + " Blue/16: " + b);
+        output += "R" + r + "G" + g + "B" + b;
+
+        r = g = b = 0;
+        Log.i(TAG, "Sample8");
+        for (Points point : mSamplePoints_8) {
+            rgbPixel = bitmap.getPixel(point.pos_x, point.pos_y);
+            r += Color.red(rgbPixel);
+            g += Color.green(rgbPixel);
+            b += Color.blue(rgbPixel);
+            Log.i(TAG, "Color of " + Integer.toString(point.pos_x) +
+                    "x" + Integer.toString(point.pos_y) +
+                    " pixel: " + Integer.toHexString(rgbPixel) +
+                    " r:" + Color.red(rgbPixel) + " g:" + Color.green(rgbPixel) + " b:" + Color.blue(rgbPixel));
+        }
+
+        Log.i(TAG, "Red: " + r + " Green: " + g + " Blue: " + b);
+
+        r = r / 16;
+        g = g / 16;
+        b = b / 16;
+
+        Log.i(TAG, "Red/16: " + r + " Green/16: " + g + " Blue/16: " + b);
+        output += "R" + r + "G" + g + "B" + b;
+
+        r = g = b = 0;
+        Log.i(TAG, "Sample9");
+        for (Points point : mSamplePoints_9) {
+            rgbPixel = bitmap.getPixel(point.pos_x, point.pos_y);
+            r += Color.red(rgbPixel);
+            g += Color.green(rgbPixel);
+            b += Color.blue(rgbPixel);
+            Log.i(TAG, "Color of " + Integer.toString(point.pos_x) +
+                    "x" + Integer.toString(point.pos_y) +
+                    " pixel: " + Integer.toHexString(rgbPixel) +
+                    " r:" + Color.red(rgbPixel) + " g:" + Color.green(rgbPixel) + " b:" + Color.blue(rgbPixel));
+        }
+
+        Log.i(TAG, "Red: " + r + " Green: " + g + " Blue: " + b);
+
+        r = r / 16;
+        g = g / 16;
+        b = b / 16;
+
+        Log.i(TAG, "Red/16: " + r + " Green/16: " + g + " Blue/16: " + b);
+        output += "R" + r + "G" + g + "B" + b;
+        data = output.getBytes();
+
+        try {
+            outputStream.write(data, 0, data.length);
+        } catch (IOException e) {
+            Log.i(TAG, "write error: " + e.getMessage());
+        } catch (NullPointerException e) {
+            //
+        }
+    }
+
+    public static final int MEDIA_TYPE_IMAGE = 1;
+    public static final int MEDIA_TYPE_VIDEO = 2;
+
+    /** Create a file Uri for saving an image or video */
+    private static Uri getOutputMediaFileUri(int type){
+        return Uri.fromFile(getOutputMediaFile(type));
+    }
+
+    /** Create a File for saving an image or video */
+    private static File getOutputMediaFile(int type){
+        // To be safe, you should check that the SDCard is mounted
+        // using Environment.getExternalStorageState() before doing this.
+
+        File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES), "CameraTest");
+        // This location works best if you want the created images to be shared
+        // between applications and persist after your app has been uninstalled.
+
+        // Create the storage directory if it does not exist
+        if (! mediaStorageDir.exists()){
+            if (! mediaStorageDir.mkdirs()){
+                Log.d("CameraTest", "failed to create directory");
+                return null;
+            }
+        }
+
+        // Create a media file name
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        File mediaFile;
+        if (type == MEDIA_TYPE_IMAGE){
+            mediaFile = new File(mediaStorageDir.getPath() + File.separator +
+                    "IMG_"+ timeStamp + ".jpg");
+        } else if(type == MEDIA_TYPE_VIDEO) {
+            mediaFile = new File(mediaStorageDir.getPath() + File.separator +
+                    "VID_"+ timeStamp + ".mp4");
+        } else {
+            return null;
+        }
+
+        return mediaFile;
+    }
+
+
+    public class InitSocketTask extends AsyncTask<Void, Void, Void>
+    {
+        String dstAddress;
+        int dstPort;
+        String response = "Connected!";
+
+        InitSocketTask(String addr, int port)
+        {
+            dstAddress = addr;
+            dstPort = port;
+        }
+
+        @Override
+        protected Void doInBackground(Void... arg0)
+        {
+            try
+            {
+                //int bytesRead;
+                mSocket = new Socket(dstAddress, dstPort);
+
+                /*
+                OutputStream outputStream = mSocket.getOutputStream();
+
+                byte data [] = response.getBytes();
+                int temp = 4;
+                outputStream.write(data, 0, temp);
+                outputStream.flush();
+                */
+            }
+            catch (UnknownHostException e)
+            {
+                response = "UnknownHostException: " + e.toString();
+            }
+            catch (IOException e)
+            {
+                response = "IOException: " + e.toString();
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void result)
+        {
+            mTextView.setText(response);
+            super.onPostExecute(result);
+        }
+    }
 }
