@@ -499,38 +499,7 @@ public class CameraActivity extends Activity {
             op.inPreferredConfig = Bitmap.Config.ARGB_8888;
             Bitmap bm = BitmapFactory.decodeByteArray(data, 0, data.length, op);
             getCubeColor(bm);
-            /*
-            Log.i(TAG, "Captured Bitmap size: " + bm.getWidth() + " x " + bm.getHeight());
-            Log.i(TAG, "color of 20x40");
-            int rgbPixel = bm.getPixel(20, 40);
-            Log.i(TAG, "pixel: " + Integer.toHexString(rgbPixel));
-            Log.i(TAG, "rgb: r---" + Color.red(rgbPixel) + "  g-- " + Color.green(rgbPixel) +" b--"+Color.blue(rgbPixel));
 
-            Log.i(TAG, "color of 75x40");
-            rgbPixel = bm.getPixel(75, 40);
-            Log.i(TAG, "pixel: " + Integer.toHexString(rgbPixel));
-            Log.i(TAG, "rgb: r---" + Color.red(rgbPixel) + "  g-- " + Color.green(rgbPixel) +" b--"+Color.blue(rgbPixel));
-
-            Log.i(TAG, "color of 125x40");
-            rgbPixel = bm.getPixel(125, 40);
-            Log.i(TAG, "pixel: " + Integer.toHexString(rgbPixel));
-            Log.i(TAG, "rgb: r---" + Color.red(rgbPixel) + "  g-- " + Color.green(rgbPixel) +" b--"+Color.blue(rgbPixel));
-
-            int scaleFactor = 1;
-            int photoW = op.outWidth;
-            int photoH = op.outHeight;
-            int targetW = mPreview.getWidth();
-            int targetH = mPreview.getHeight();
-            scaleFactor = Math.min(photoW/targetW, photoH/targetH);
-
-            op.inJustDecodeBounds = false;
-            op.inSampleSize = scaleFactor;
-            op.inPreferredConfig = Bitmap.Config.ARGB_8888;
-            mCapturedBitmap = bm.createScaledBitmap(bm, targetW, targetH, true);
-            //Bitmap scaled_bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, op);
-
-            Log.i(TAG, "Scaled Bitmap size: " + mCapturedBitmap.getWidth() + " x " + mCapturedBitmap.getHeight());
-            */
             camera.startPreview();
         }
     };
@@ -822,6 +791,12 @@ public class CameraActivity extends Activity {
                 //int bytesRead;
                 mSocket = new Socket(dstAddress, dstPort);
 
+                OutputStream outputStream = mSocket.getOutputStream();
+                String myself = "Android";
+                byte data[] = myself.getBytes();
+                outputStream.write(data, 0, data.length);
+                outputStream.flush();
+
                 BufferedReader in = new BufferedReader(
                         new InputStreamReader(mSocket.getInputStream()));
 
@@ -845,6 +820,7 @@ public class CameraActivity extends Activity {
         @Override
         protected void onProgressUpdate(String... progress) {
             mTextView.setText(progress[0]);
+            mCamera.takePicture(null, null, mPicture_JPG);
         }
 
         @Override
