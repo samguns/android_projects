@@ -26,10 +26,12 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -748,6 +750,8 @@ public class CameraActivity extends Activity {
 
         try {
             outputStream.write(data, 0, data.length);
+            outputStream.flush();
+            //outputStream.close();
         } catch (IOException e) {
             Log.i(TAG, "write error: " + e.getMessage());
         } catch (NullPointerException e) {
@@ -798,7 +802,7 @@ public class CameraActivity extends Activity {
     }
 
 
-    public class InitSocketTask extends AsyncTask<Void, Void, Void>
+    public class InitSocketTask extends AsyncTask<Void, String, Void>
     {
         String dstAddress;
         int dstPort;
@@ -818,14 +822,13 @@ public class CameraActivity extends Activity {
                 //int bytesRead;
                 mSocket = new Socket(dstAddress, dstPort);
 
-                /*
-                OutputStream outputStream = mSocket.getOutputStream();
+                BufferedReader in = new BufferedReader(
+                        new InputStreamReader(mSocket.getInputStream()));
 
-                byte data [] = response.getBytes();
-                int temp = 4;
-                outputStream.write(data, 0, temp);
-                outputStream.flush();
-                */
+                String line;
+                while ((line = in.readLine()) != null) {
+                    publishProgress(line);
+                }
             }
             catch (UnknownHostException e)
             {
@@ -840,10 +843,15 @@ public class CameraActivity extends Activity {
         }
 
         @Override
+        protected void onProgressUpdate(String... progress) {
+            mTextView.setText(progress[0]);
+        }
+
+        @Override
         protected void onPostExecute(Void result)
         {
-            mTextView.setText(response);
-            super.onPostExecute(result);
+            //super.onPostExecute(result);
+            //mTextView.setText(response);
         }
     }
 }
