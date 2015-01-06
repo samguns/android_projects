@@ -800,10 +800,6 @@ public class CameraActivity extends Activity {
                 BufferedReader in = new BufferedReader(
                         new InputStreamReader(mSocket.getInputStream()));
 
-                OutputStream outputStream = mSocket.getOutputStream();
-                byte data [] = response.getBytes();
-                outputStream.write(data, 0, data.length);
-                outputStream.flush();
                 String line;
                 while ((line = in.readLine()) != null) {
                     publishProgress(line);
