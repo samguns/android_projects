@@ -477,7 +477,7 @@ public class CameraActivity extends Activity {
     private Camera.PictureCallback mPicture_JPG = new Camera.PictureCallback() {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
-            /*
+
             File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
             if (pictureFile == null){
                 Log.d(TAG, "Error creating media file, check storage permissions");
@@ -493,7 +493,7 @@ public class CameraActivity extends Activity {
             } catch (IOException e) {
                 Log.d(TAG, "Error accessing file: " + e.getMessage());
             }
-            */
+
 
             BitmapFactory.Options op = new BitmapFactory.Options();
             op.inPreferredConfig = Bitmap.Config.ARGB_8888;
@@ -773,7 +773,7 @@ public class CameraActivity extends Activity {
         // using Environment.getExternalStorageState() before doing this.
 
         File mediaStorageDir = new File(Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "CameraTest");
+                Environment.DIRECTORY_PICTURES), "CubeScan");
         // This location works best if you want the created images to be shared
         // between applications and persist after your app has been uninstalled.
 
@@ -806,7 +806,7 @@ public class CameraActivity extends Activity {
     {
         String dstAddress;
         int dstPort;
-        String response = "Connected!";
+        String response = "Android";
 
         InitSocketTask(String addr, int port)
         {
@@ -825,6 +825,10 @@ public class CameraActivity extends Activity {
                 BufferedReader in = new BufferedReader(
                         new InputStreamReader(mSocket.getInputStream()));
 
+                OutputStream outputStream = mSocket.getOutputStream();
+                byte data [] = response.getBytes();
+                outputStream.write(data, 0, data.length);
+                outputStream.flush();
                 String line;
                 while ((line = in.readLine()) != null) {
                     publishProgress(line);
@@ -844,6 +848,7 @@ public class CameraActivity extends Activity {
 
         @Override
         protected void onProgressUpdate(String... progress) {
+            mCamera.takePicture(null, null, mPicture_JPG);
             mTextView.setText(progress[0]);
         }
 
