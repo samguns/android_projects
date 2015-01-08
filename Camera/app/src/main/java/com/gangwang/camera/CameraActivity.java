@@ -204,7 +204,7 @@ public class CameraActivity extends Activity {
         //mCamera.setDisplayOrientation(90);
 
         Camera.Parameters parameters = mCamera.getParameters();
-        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
+        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_VIDEO);
         mCamera.setParameters(parameters);
 
         mPreview = new CameraPreview(this, mCamera);
@@ -223,7 +223,7 @@ public class CameraActivity extends Activity {
                     }
                 }
         );
-
+        /*
         Button captureButton = (Button) findViewById(R.id.button_capture);
         captureButton.setOnClickListener(
                 new Button.OnClickListener() {
@@ -233,6 +233,7 @@ public class CameraActivity extends Activity {
                     }
                 }
         );
+        */
 
         mAddress = (EditText)findViewById(R.id.address);
         Button btnConnect = (Button) findViewById(R.id.connect);
@@ -821,7 +822,6 @@ public class CameraActivity extends Activity {
         protected void onProgressUpdate(String... progress) {
             mCamera.takePicture(null, null, mPicture_JPG);
             mTextView.setText(progress[0]);
-            mCamera.takePicture(null, null, mPicture_JPG);
         }
 
         @Override
