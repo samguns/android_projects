@@ -26,6 +26,8 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import com.dd.CircularProgressButton;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -57,6 +59,7 @@ public class CameraActivity extends Activity {
     private TextView mTextView = null;
     private EditText mAddress;
     private Socket mSocket = null;
+    private CircularProgressButton mButtonConnect;
     //private Bitmap mCapturedBitmap;
 
     private void initSamplePoints() {
@@ -236,15 +239,21 @@ public class CameraActivity extends Activity {
         */
 
         mAddress = (EditText)findViewById(R.id.address);
-        Button btnConnect = (Button) findViewById(R.id.connect);
-        btnConnect.setOnClickListener(
+        mButtonConnect = (CircularProgressButton) findViewById(R.id.connect);
+        mButtonConnect.setIndeterminateProgressMode(true);
+        mButtonConnect.setOnClickListener(
                 new Button.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        InitSocketTask connectTask = new InitSocketTask(
-                                        mAddress.getText().toString(), 50007);
+                        if ((mButtonConnect.getProgress() == 0) |
+                                (mButtonConnect.getProgress() == -1)) {
+                            mButtonConnect.setProgress(0);
+                            mButtonConnect.setProgress(50);
+                            InitSocketTask connectTask = new InitSocketTask(
+                                    mAddress.getText().toString(), 50007);
 
-                        connectTask.execute();
+                            connectTask.execute();
+                        }
                     }
                 }
         );
@@ -465,6 +474,7 @@ public class CameraActivity extends Activity {
             }
             mSocket = null;
         }
+        mButtonConnect.setProgress(0);
     }
 
     @Override
@@ -478,7 +488,7 @@ public class CameraActivity extends Activity {
     private Camera.PictureCallback mPicture_JPG = new Camera.PictureCallback() {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
-
+            /*
             File pictureFile = getOutputMediaFile(MEDIA_TYPE_IMAGE);
             if (pictureFile == null){
                 Log.d(TAG, "Error creating media file, check storage permissions");
@@ -494,7 +504,7 @@ public class CameraActivity extends Activity {
             } catch (IOException e) {
                 Log.d(TAG, "Error accessing file: " + e.getMessage());
             }
-
+            */
 
             BitmapFactory.Options op = new BitmapFactory.Options();
             op.inPreferredConfig = Bitmap.Config.ARGB_8888;
@@ -798,6 +808,8 @@ public class CameraActivity extends Activity {
                 outputStream.write(data, 0, data.length);
                 outputStream.flush();
 
+                publishProgress("Connected");
+
                 BufferedReader in = new BufferedReader(
                         new InputStreamReader(mSocket.getInputStream()));
 
@@ -809,10 +821,12 @@ public class CameraActivity extends Activity {
             catch (UnknownHostException e)
             {
                 response = "UnknownHostException: " + e.toString();
+                publishProgress("Fail");
             }
             catch (IOException e)
             {
                 response = "IOException: " + e.toString();
+                publishProgress("Fail");
             }
 
             return null;
@@ -820,8 +834,16 @@ public class CameraActivity extends Activity {
 
         @Override
         protected void onProgressUpdate(String... progress) {
-            mCamera.takePicture(null, null, mPicture_JPG);
-            mTextView.setText(progress[0]);
+            if (progress[0].equals("Connected")) {
+                mButtonConnect.setProgress(100);
+            }
+            else if (progress[0].equals("Fail")) {
+                mButtonConnect.setProgress(-1);
+            }
+            else {
+                mCamera.takePicture(null, null, mPicture_JPG);
+                mTextView.setText(progress[0]);
+            }
         }
 
         @Override

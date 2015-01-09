@@ -7,5 +7,7 @@
     <string name="capture">Capture</string>
     <string name="dstAddress">Destination IP address</string>
     <string name="connect">Connect</string>
+    <string name="complete">Connected!</string>
+    <string name="error">Failed</string>
 
 </resources>

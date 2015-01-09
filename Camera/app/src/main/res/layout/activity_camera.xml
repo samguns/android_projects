@@ -1,8 +1,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:keepScreenOn="true" >
+    android:keepScreenOn="true">
 
     <FrameLayout
         android:id="@+id/camera_preview"
@@ -17,12 +18,17 @@
         android:layout_height="wrap_content"
         android:text="172.16.140.15" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/connect"
+    <com.dd.CircularProgressButton
         android:id="@+id/connect"
-        android:layout_gravity="center" />
+        android:layout_width="110dp"
+        android:layout_height="35dp"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:cpb_cornerRadius="48dp"
+        app:cpb_textIdle="@string/connect"
+        app:cpb_textComplete="@string/complete"
+        app:cpb_textError="@string/error"
+        android:layout_gravity="center_horizontal" />
 
     <TextView
         android:id="@+id/response"
