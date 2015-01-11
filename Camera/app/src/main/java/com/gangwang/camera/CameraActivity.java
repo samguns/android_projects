@@ -474,7 +474,6 @@ public class CameraActivity extends Activity {
             }
             mSocket = null;
         }
-        mButtonConnect.setProgress(0);
     }
 
     @Override
@@ -482,6 +481,7 @@ public class CameraActivity extends Activity {
         super.onResume();
         if (null == mCamera) {
             mCamera = getCameraInstance();
+            mButtonConnect.setProgress(0);
         }
     }
 

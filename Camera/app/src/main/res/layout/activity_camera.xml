@@ -16,7 +16,7 @@
         android:hint="@string/dstAddress"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="172.16.140.15" />
+        android:text="192.168.1.6" />
 
     <com.dd.CircularProgressButton
         android:id="@+id/connect"
